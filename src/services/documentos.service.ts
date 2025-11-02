@@ -283,9 +283,9 @@ export async function obtenerDocumentosProximosVencer(diasLimite = 30) {
 }
 
 /**
- * Obtener documentos vencidos
+ * Obtener documentos vencidos (versión simple sin relaciones)
  */
-export async function obtenerDocumentosVencidos(): Promise<Documento[]> {
+export async function obtenerDocumentosVencidosSimple(): Promise<Documento[]> {
   const supabase = createClient()
 
   const { data, error } = await supabase
