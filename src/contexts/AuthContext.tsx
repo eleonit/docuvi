@@ -57,8 +57,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id)
+
+        // Si es un evento de cierre de sesión, limpiar inmediatamente
+        if (event === 'SIGNED_OUT') {
+          setUser(null)
+          setUsuario(null)
+          setIsLoading(false)
+          return
+        }
+
+        // Actualizar el usuario
         setUser(session?.user ?? null)
+
         if (session?.user) {
+          // Cargar datos del usuario desde la base de datos
           const { data: usuarioData } = await supabase
             .from('usuarios')
             .select('*')
@@ -79,19 +92,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadUser, supabase])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
     if (error) throw error
+
+    // Actualizar inmediatamente el estado del usuario y su información
+    if (data.user) {
+      setUser(data.user)
+
+      const { data: usuarioData } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('id', data.user.id)
+        .single()
+
+      setUsuario(usuarioData)
+    }
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    // Limpiar estado inmediatamente antes de cerrar sesión
     setUser(null)
     setUsuario(null)
+
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
   }
 
   const refreshUser = async () => {
