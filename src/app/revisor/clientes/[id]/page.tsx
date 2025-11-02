@@ -111,7 +111,7 @@ export default function ClienteDetallePage(props: PageProps) {
   // Obtener tipos de documento
   const { data: tiposDocumento } = useQuery({
     queryKey: ['tipos-documento'],
-    queryFn: obtenerTiposDocumento
+    queryFn: () => obtenerTiposDocumento()
   })
 
   // Mutation para editar cliente
