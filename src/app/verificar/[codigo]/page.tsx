@@ -85,77 +85,79 @@ export default function VerificarCertificadoPage({
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Código</p>
-                        <p className="text-base font-mono font-medium text-gray-900">
-                          {resultado.certificado.codigo}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Empresa</p>
-                        <p className="text-base font-medium text-gray-900">
-                          {resultado.certificado.cliente?.nombre_empresa}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Fecha de Emisión</p>
-                        <p className="text-base font-medium text-gray-900">
-                          {formatearFecha(resultado.certificado.fecha_emision)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Vigencia</p>
-                        <p className="text-base font-medium text-gray-900">
-                          {formatearFecha(resultado.certificado.fecha_validez_desde)} -{' '}
-                          {formatearFecha(resultado.certificado.fecha_validez_hasta)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Emitido por</p>
-                        <p className="text-base font-medium text-gray-900">
-                          {resultado.certificado.emisor?.nombre}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Estado</p>
-                        <Badge variant="success">Activo</Badge>
-                      </div>
-                    </div>
-
-                    {resultado.certificado.detalles &&
-                      resultado.certificado.detalles.length > 0 && (
-                        <div className="mt-6">
-                          <p className="text-sm font-medium text-gray-700 mb-3">
-                            Documentos verificados:
+                  {resultado.certificado && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Código</p>
+                          <p className="text-base font-mono font-medium text-gray-900">
+                            {resultado.certificado.codigo}
                           </p>
-                          <ul className="space-y-2">
-                            {resultado.certificado.detalles.map((detalle: any) => (
-                              <li
-                                key={detalle.id}
-                                className="flex items-center gap-2 text-sm text-gray-600"
-                              >
-                                <svg
-                                  className="w-5 h-5 text-green-500 flex-shrink-0"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M5 13l4 4L19 7"
-                                  />
-                                </svg>
-                                {detalle.tipo_documento_nombre}
-                              </li>
-                            ))}
-                          </ul>
                         </div>
-                      )}
-                  </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Empresa</p>
+                          <p className="text-base font-medium text-gray-900">
+                            {resultado.certificado.cliente?.nombre_empresa}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Fecha de Emisión</p>
+                          <p className="text-base font-medium text-gray-900">
+                            {formatearFecha(resultado.certificado.fecha_emision)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Vigencia</p>
+                          <p className="text-base font-medium text-gray-900">
+                            {formatearFecha(resultado.certificado.fecha_validez_desde)} -{' '}
+                            {formatearFecha(resultado.certificado.fecha_validez_hasta)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Emitido por</p>
+                          <p className="text-base font-medium text-gray-900">
+                            {resultado.certificado.emisor?.nombre}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Estado</p>
+                          <Badge variant="success">Activo</Badge>
+                        </div>
+                      </div>
+
+                      {resultado.certificado.detalles &&
+                        resultado.certificado.detalles.length > 0 && (
+                          <div className="mt-6">
+                            <p className="text-sm font-medium text-gray-700 mb-3">
+                              Documentos verificados:
+                            </p>
+                            <ul className="space-y-2">
+                              {resultado.certificado.detalles.map((detalle: any) => (
+                                <li
+                                  key={detalle.id}
+                                  className="flex items-center gap-2 text-sm text-gray-600"
+                                >
+                                  <svg
+                                    className="w-5 h-5 text-green-500 flex-shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                  {detalle.tipo_documento_nombre}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div>
