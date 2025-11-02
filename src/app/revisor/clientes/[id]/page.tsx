@@ -744,7 +744,7 @@ export default function ClienteDetallePage(props: PageProps) {
             placeholder="Ej: 12 para anual"
             value={formRequerimiento.periodicidad_meses}
             onChange={(e) => setFormRequerimiento({ ...formRequerimiento, periodicidad_meses: e.target.value })}
-            helpText="Dejar vacío si no tiene periodicidad"
+            helperText="Dejar vacío si no tiene periodicidad"
           />
 
           <div className="flex justify-end gap-2 mt-6">
@@ -819,7 +819,7 @@ export default function ClienteDetallePage(props: PageProps) {
             value={formAsignarUsuario.correo}
             onChange={(e) => setFormAsignarUsuario({ ...formAsignarUsuario, correo: e.target.value })}
             required
-            helpText="Este correo se utilizará para iniciar sesión"
+            helperText="Este correo se utilizará para iniciar sesión"
           />
 
           <Input
@@ -828,7 +828,7 @@ export default function ClienteDetallePage(props: PageProps) {
             value={formAsignarUsuario.nombre}
             onChange={(e) => setFormAsignarUsuario({ ...formAsignarUsuario, nombre: e.target.value })}
             required
-            helpText="Nombre del contacto o representante"
+            helperText="Nombre del contacto o representante"
           />
 
           <Input
@@ -837,7 +837,7 @@ export default function ClienteDetallePage(props: PageProps) {
             value={formAsignarUsuario.password}
             onChange={(e) => setFormAsignarUsuario({ ...formAsignarUsuario, password: e.target.value })}
             required
-            helpText="Mínimo 6 caracteres"
+            helperText="Mínimo 6 caracteres"
           />
 
           <div className="flex justify-end gap-2 mt-6">
