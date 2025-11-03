@@ -57,8 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, session?.user?.id)
-
         // Si es un evento de cierre de sesión, limpiar inmediatamente
         if (event === 'SIGNED_OUT') {
           setUser(null)
@@ -114,12 +112,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    // Limpiar estado inmediatamente antes de cerrar sesión
-    setUser(null)
-    setUsuario(null)
+    try {
+      // Cerrar sesión en Supabase primero
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
 
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+      // El evento SIGNED_OUT del listener limpiará el estado automáticamente
+      // Pero limpiamos también aquí por si acaso
+      setUser(null)
+      setUsuario(null)
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error)
+      // En caso de error, limpiar el estado de todas formas
+      setUser(null)
+      setUsuario(null)
+      throw error
+    }
   }
 
   const refreshUser = async () => {
