@@ -6,7 +6,12 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, Badge, PageLoading } from '@/components/base'
-import { obtenerClientePorUsuarioId, obtenerRequerimientosCliente } from '@/services'
+import {
+  obtenerClientePorUsuarioId,
+  obtenerRequerimientosCliente,
+  obtenerEstadoCumplimiento,
+  obtenerTiempoRespuestaCliente,
+} from '@/services'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function ClienteDashboardPage() {
@@ -24,7 +29,19 @@ export default function ClienteDashboardPage() {
     enabled: !!cliente,
   })
 
-  if (loadingCliente || loadingReqs) {
+  const { data: cumplimiento, isLoading: loadingCumplimiento } = useQuery({
+    queryKey: ['cumplimiento-cliente', cliente?.id],
+    queryFn: () => obtenerEstadoCumplimiento(cliente!.id),
+    enabled: !!cliente,
+  })
+
+  const { data: tiempoRespuesta, isLoading: loadingTiempo } = useQuery({
+    queryKey: ['tiempo-respuesta-cliente', cliente?.id],
+    queryFn: () => obtenerTiempoRespuestaCliente(cliente!.id),
+    enabled: !!cliente,
+  })
+
+  if (loadingCliente || loadingReqs || loadingCumplimiento || loadingTiempo) {
     return <PageLoading />
   }
 
@@ -44,10 +61,59 @@ export default function ClienteDashboardPage() {
       return docsAprobados && docsAprobados.length > 0
     }).length || 0
 
+  // Calcular porcentaje de cumplimiento
+  const totalRequerimientos = cumplimiento?.total_requerimientos || 0
+  const requerimientosCumplidos = cumplimiento?.requerimientos_cumplidos || 0
+  const porcentajeCumplimiento =
+    totalRequerimientos > 0 ? Math.round((requerimientosCumplidos / totalRequerimientos) * 100) : 0
+
   const stats = [
+    {
+      title: 'Porcentaje de Cumplimiento',
+      value: `${porcentajeCumplimiento}%`,
+      subtitle: `${requerimientosCumplidos} de ${totalRequerimientos} requerimientos`,
+      icon: (
+        <svg
+          className="w-8 h-8 text-primary-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+      ),
+      color: 'bg-primary-50',
+    },
+    {
+      title: 'Tiempo de Respuesta',
+      value: tiempoRespuesta ? `${tiempoRespuesta} días` : 'N/A',
+      subtitle: 'Promedio de aprobación',
+      icon: (
+        <svg
+          className="w-8 h-8 text-indigo-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+      color: 'bg-indigo-50',
+    },
     {
       title: 'Requerimientos Totales',
       value: requerimientos?.length || 0,
+      subtitle: 'Total asignados',
       icon: (
         <svg
           className="w-8 h-8 text-blue-600"
@@ -68,6 +134,7 @@ export default function ClienteDashboardPage() {
     {
       title: 'Documentos Aprobados',
       value: documentosAprobados,
+      subtitle: 'Completados',
       icon: (
         <svg
           className="w-8 h-8 text-green-600"
@@ -88,6 +155,7 @@ export default function ClienteDashboardPage() {
     {
       title: 'Documentos Pendientes',
       value: documentosPendientes,
+      subtitle: 'Por cargar',
       icon: (
         <svg
           className="w-8 h-8 text-yellow-600"
@@ -119,16 +187,17 @@ export default function ClienteDashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
         {stats.map((stat) => (
           <Card key={stat.title}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                </div>
+              <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-lg ${stat.color}`}>{stat.icon}</div>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                <p className="text-xs text-gray-500">{stat.subtitle}</p>
               </div>
             </CardContent>
           </Card>

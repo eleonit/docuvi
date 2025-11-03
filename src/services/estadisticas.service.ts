@@ -331,3 +331,107 @@ export async function obtenerDocumentosVencidos(): Promise<DocumentoVencido[]> {
     }
   })
 }
+
+/**
+ * Interfaz para requerimientos pendientes de carga
+ */
+export interface RequerimientoPendienteCarga {
+  id: string
+  cliente_id: string
+  cliente_nombre: string
+  tipo_documento: string
+  tipo_documento_id: string
+  obligatorio: boolean
+}
+
+/**
+ * Obtener requerimientos pendientes de carga (sin documentos aprobados)
+ */
+export async function obtenerRequerimientosPendientesCarga(): Promise<
+  RequerimientoPendienteCarga[]
+> {
+  const supabase = createClient()
+
+  // Obtener todos los requerimientos con sus documentos
+  const { data: requerimientos, error } = await supabase
+    .from('requerimientos_cliente')
+    .select(`
+      id,
+      obligatorio,
+      tipo_documento:tipo_documento_id(
+        id,
+        nombre
+      ),
+      cliente:cliente_id(
+        id,
+        nombre_empresa,
+        activo
+      ),
+      documentos:documentos(
+        id,
+        estado,
+        eliminado
+      )
+    `)
+    .eq('cliente.activo', true)
+
+  if (error) throw new Error(error.message)
+
+  // Filtrar solo los que no tienen documentos aprobados
+  const pendientes = (requerimientos || [])
+    .filter((req: any) => {
+      const documentos = req.documentos || []
+      const tieneDocAprobado = documentos.some(
+        (doc: any) => doc.estado === 'aprobado' && !doc.eliminado
+      )
+      return !tieneDocAprobado
+    })
+    .map((req: any) => ({
+      id: req.id,
+      cliente_id: req.cliente.id,
+      cliente_nombre: req.cliente.nombre_empresa,
+      tipo_documento: req.tipo_documento.nombre,
+      tipo_documento_id: req.tipo_documento.id,
+      obligatorio: req.obligatorio,
+    }))
+
+  return pendientes
+}
+
+/**
+ * Obtener tiempo de respuesta promedio de un cliente (en días)
+ */
+export async function obtenerTiempoRespuestaCliente(clienteId: string): Promise<number> {
+  const supabase = createClient()
+
+  const { data: documentos, error } = await supabase
+    .from('documentos')
+    .select(`
+      id,
+      fecha_carga,
+      fecha_aprobacion,
+      requerimiento_cliente:requerimiento_cliente_id!inner(
+        cliente_id
+      )
+    `)
+    .eq('requerimiento_cliente.cliente_id', clienteId)
+    .eq('estado', 'aprobado')
+    .eq('eliminado', false)
+    .not('fecha_aprobacion', 'is', null)
+
+  if (error) throw new Error(error.message)
+
+  if (!documentos || documentos.length === 0) return 0
+
+  let totalDias = 0
+  for (const doc of documentos) {
+    const fechaCarga = new Date(doc.fecha_carga)
+    const fechaAprobacion = new Date(doc.fecha_aprobacion!)
+    const dias = Math.floor(
+      (fechaAprobacion.getTime() - fechaCarga.getTime()) / (1000 * 60 * 60 * 24)
+    )
+    totalDias += dias
+  }
+
+  return Math.round((totalDias / documentos.length) * 10) / 10
+}
