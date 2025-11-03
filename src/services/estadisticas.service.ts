@@ -345,7 +345,8 @@ export interface RequerimientoPendienteCarga {
 }
 
 /**
- * Obtener requerimientos pendientes de carga (sin documentos aprobados)
+ * Obtener requerimientos pendientes de carga (SIN ningún documento cargado)
+ * Solo muestra requerimientos que no tienen documentos o todos están eliminados
  */
 export async function obtenerRequerimientosPendientesCarga(): Promise<
   RequerimientoPendienteCarga[]
@@ -377,14 +378,16 @@ export async function obtenerRequerimientosPendientesCarga(): Promise<
 
   if (error) throw new Error(error.message)
 
-  // Filtrar solo los que no tienen documentos aprobados
+  // Filtrar solo los que NO tienen ningún documento (o todos están eliminados)
   const pendientes = (requerimientos || [])
     .filter((req: any) => {
       const documentos = req.documentos || []
-      const tieneDocAprobado = documentos.some(
-        (doc: any) => doc.estado === 'aprobado' && !doc.eliminado
-      )
-      return !tieneDocAprobado
+
+      // Filtrar solo documentos NO eliminados
+      const documentosActivos = documentos.filter((doc: any) => !doc.eliminado)
+
+      // Retornar true si NO hay documentos activos (sin documentos cargados)
+      return documentosActivos.length === 0
     })
     .map((req: any) => ({
       id: req.id,
