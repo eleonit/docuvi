@@ -31,8 +31,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { nombre_empresa, correo_contacto, telefono_contacto, crear_usuario, password } =
-      body
+    const {
+      nombre_empresa,
+      cuit_cuil,
+      domicilio,
+      nombre_representante,
+      correo_contacto,
+      telefono_contacto,
+      celular_contacto,
+      tipo_persona,
+      crear_usuario,
+      password
+    } = body
 
     // Validaciones
     if (!nombre_empresa || !correo_contacto) {
@@ -75,8 +85,13 @@ export async function POST(request: NextRequest) {
       .from('clientes')
       .insert({
         nombre_empresa,
+        cuit_cuil: cuit_cuil || null,
+        domicilio: domicilio || null,
+        nombre_representante: nombre_representante || null,
         correo_contacto,
         telefono_contacto: telefono_contacto || null,
+        celular_contacto: celular_contacto || null,
+        tipo_persona: tipo_persona || null,
         usuario_id: usuarioClienteId,
         creado_por: user.id,
       })

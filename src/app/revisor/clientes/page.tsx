@@ -17,8 +17,13 @@ export default function ClientesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({
     nombre_empresa: '',
+    cuit_cuil: '',
+    tipo_persona: 'juridica' as 'fisica' | 'juridica',
+    domicilio: '',
+    nombre_representante: '',
     correo_contacto: '',
     telefono_contacto: '',
+    celular_contacto: '',
     crear_usuario: true,
     password: '',
   })
@@ -49,8 +54,13 @@ export default function ClientesPage() {
       setIsModalOpen(false)
       setFormData({
         nombre_empresa: '',
+        cuit_cuil: '',
+        tipo_persona: 'juridica',
+        domicilio: '',
+        nombre_representante: '',
         correo_contacto: '',
         telefono_contacto: '',
+        celular_contacto: '',
         crear_usuario: true,
         password: '',
       })
@@ -99,9 +109,10 @@ export default function ClientesPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Correo</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teléfono</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">CUIT/CUIL</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contacto</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
                   </tr>
@@ -109,9 +120,30 @@ export default function ClientesPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {clientes.map((cliente) => (
                     <tr key={cliente.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cliente.nombre_empresa}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{cliente.correo_contacto}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{cliente.telefono_contacto || '-'}</td>
+                      <td className="px-6 py-4 text-sm">
+                        <div className="font-medium text-gray-900">{cliente.nombre_empresa}</div>
+                        {cliente.nombre_representante && (
+                          <div className="text-xs text-gray-500">Rep: {cliente.nombre_representante}</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {cliente.cuit_cuil || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {cliente.tipo_persona ? (
+                          <Badge variant={cliente.tipo_persona === 'juridica' ? 'info' : 'neutral'}>
+                            {cliente.tipo_persona === 'juridica' ? 'Jurídica' : 'Física'}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        <div>{cliente.correo_contacto}</div>
+                        <div className="text-xs text-gray-500">
+                          {cliente.celular_contacto || cliente.telefono_contacto || '-'}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {cliente.usuario_id ? (
                           <Badge variant="success">Activo</Badge>
@@ -141,28 +173,105 @@ export default function ClientesPage() {
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Tipo de Persona */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de Persona <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="tipo_persona"
+                  value="juridica"
+                  checked={formData.tipo_persona === 'juridica'}
+                  onChange={(e) => setFormData({ ...formData, tipo_persona: 'juridica' })}
+                  className="border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-gray-700">Persona Jurídica</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="tipo_persona"
+                  value="fisica"
+                  checked={formData.tipo_persona === 'fisica'}
+                  onChange={(e) => setFormData({ ...formData, tipo_persona: 'fisica' })}
+                  className="border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-gray-700">Persona Física</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Nombre de Empresa */}
           <Input
-            label="Nombre de la Empresa"
+            label={formData.tipo_persona === 'fisica' ? 'Nombre Completo' : 'Nombre de la Empresa / Razón Social'}
             required
             value={formData.nombre_empresa}
             onChange={(e) => setFormData({ ...formData, nombre_empresa: e.target.value })}
-            placeholder="Ej: Constructora ABC S.A."
+            placeholder={formData.tipo_persona === 'fisica' ? 'Ej: Juan Pérez' : 'Ej: Constructora ABC S.A.'}
           />
+
+          {/* CUIT/CUIL */}
           <Input
-            label="Correo de Contacto"
-            type="email"
-            required
-            value={formData.correo_contacto}
-            onChange={(e) => setFormData({ ...formData, correo_contacto: e.target.value })}
-            placeholder="contacto@empresa.com"
+            label="CUIT/CUIL"
+            value={formData.cuit_cuil}
+            onChange={(e) => setFormData({ ...formData, cuit_cuil: e.target.value })}
+            placeholder="XX-XXXXXXXX-X"
+            helperText="Formato: 20-12345678-9"
           />
+
+          {/* Domicilio */}
           <Input
-            label="Teléfono"
-            type="tel"
-            value={formData.telefono_contacto}
-            onChange={(e) => setFormData({ ...formData, telefono_contacto: e.target.value })}
-            placeholder="555-1234"
+            label="Domicilio"
+            value={formData.domicilio}
+            onChange={(e) => setFormData({ ...formData, domicilio: e.target.value })}
+            placeholder="Calle, número, ciudad, provincia"
           />
+
+          {/* Nombre del Representante/Contacto */}
+          <Input
+            label={formData.tipo_persona === 'fisica' ? 'Persona de Contacto (opcional)' : 'Nombre del Representante / Contacto'}
+            value={formData.nombre_representante}
+            onChange={(e) => setFormData({ ...formData, nombre_representante: e.target.value })}
+            placeholder="Nombre y apellido del contacto"
+          />
+
+          <div className="border-t pt-4">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Datos de Contacto</h3>
+
+            {/* Correo de Contacto */}
+            <Input
+              label="Correo Electrónico"
+              type="email"
+              required
+              value={formData.correo_contacto}
+              onChange={(e) => setFormData({ ...formData, correo_contacto: e.target.value })}
+              placeholder="contacto@empresa.com"
+              className="mb-3"
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Teléfono */}
+              <Input
+                label="Teléfono Fijo"
+                type="tel"
+                value={formData.telefono_contacto}
+                onChange={(e) => setFormData({ ...formData, telefono_contacto: e.target.value })}
+                placeholder="011 4444-5555"
+              />
+
+              {/* Celular */}
+              <Input
+                label="Celular / WhatsApp"
+                type="tel"
+                value={formData.celular_contacto}
+                onChange={(e) => setFormData({ ...formData, celular_contacto: e.target.value })}
+                placeholder="11 5555-6666"
+              />
+            </div>
+          </div>
 
           <div className="border-t pt-4">
             <label className="flex items-center gap-2 mb-4">
@@ -172,7 +281,7 @@ export default function ClientesPage() {
                 onChange={(e) => setFormData({ ...formData, crear_usuario: e.target.checked })}
                 className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-sm text-gray-700">Crear cuenta de usuario</span>
+              <span className="text-sm text-gray-700">Crear cuenta de usuario para acceder al sistema</span>
             </label>
 
             {formData.crear_usuario && (

@@ -77,8 +77,13 @@ export interface SesionUsuario {
 // Tipos para formularios
 export interface FormularioCliente {
   nombre_empresa: string
+  cuit_cuil?: string
+  domicilio?: string
+  nombre_representante?: string
   correo_contacto: string
   telefono_contacto?: string
+  celular_contacto?: string
+  tipo_persona?: 'fisica' | 'juridica'
   crear_usuario: boolean
   password?: string
 }

@@ -14,6 +14,7 @@ export type Json =
 export type Rol = 'revisor' | 'cliente'
 export type EstadoDocumento = 'pendiente' | 'aprobado' | 'rechazado'
 export type EstadoCertificado = 'activo' | 'revocado' | 'vencido'
+export type TipoPersona = 'fisica' | 'juridica'
 
 export interface Database {
   public: {
@@ -48,8 +49,14 @@ export interface Database {
         Row: {
           id: string
           nombre_empresa: string
+          cuit_cuil: string | null
+          domicilio: string | null
+          nombre_representante: string | null
           correo_contacto: string
           telefono_contacto: string | null
+          celular_contacto: string | null
+          tipo_persona: TipoPersona | null
+          activo: boolean
           usuario_id: string | null
           creado_por: string
           creado_en: string
@@ -58,8 +65,14 @@ export interface Database {
         Insert: {
           id?: string
           nombre_empresa: string
+          cuit_cuil?: string | null
+          domicilio?: string | null
+          nombre_representante?: string | null
           correo_contacto: string
           telefono_contacto?: string | null
+          celular_contacto?: string | null
+          tipo_persona?: TipoPersona | null
+          activo?: boolean
           usuario_id?: string | null
           creado_por: string
           creado_en?: string
@@ -68,8 +81,14 @@ export interface Database {
         Update: {
           id?: string
           nombre_empresa?: string
+          cuit_cuil?: string | null
+          domicilio?: string | null
+          nombre_representante?: string | null
           correo_contacto?: string
           telefono_contacto?: string | null
+          celular_contacto?: string | null
+          tipo_persona?: TipoPersona | null
+          activo?: boolean
           usuario_id?: string | null
           creado_por?: string
           creado_en?: string

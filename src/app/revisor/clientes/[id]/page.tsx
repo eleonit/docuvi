@@ -60,8 +60,13 @@ export default function ClienteDetallePage(props: PageProps) {
   // Estados para formularios
   const [formEditar, setFormEditar] = useState({
     nombre_empresa: '',
+    cuit_cuil: '',
+    domicilio: '',
+    nombre_representante: '',
     correo_contacto: '',
-    telefono_contacto: ''
+    telefono_contacto: '',
+    celular_contacto: '',
+    tipo_persona: 'juridica' as 'fisica' | 'juridica'
   })
 
   const [formRequerimiento, setFormRequerimiento] = useState({
@@ -266,8 +271,13 @@ export default function ClienteDetallePage(props: PageProps) {
   const abrirModalEditar = () => {
     setFormEditar({
       nombre_empresa: cliente?.nombre_empresa || '',
+      cuit_cuil: cliente?.cuit_cuil || '',
+      domicilio: cliente?.domicilio || '',
+      nombre_representante: cliente?.nombre_representante || '',
       correo_contacto: cliente?.correo_contacto || '',
-      telefono_contacto: cliente?.telefono_contacto || ''
+      telefono_contacto: cliente?.telefono_contacto || '',
+      celular_contacto: cliente?.celular_contacto || '',
+      tipo_persona: (cliente?.tipo_persona as 'fisica' | 'juridica') || 'juridica'
     })
     setIsModalEditar(true)
   }
@@ -372,7 +382,7 @@ export default function ClienteDetallePage(props: PageProps) {
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <CardTitle>Información de Contacto</CardTitle>
+            <CardTitle>Información del Cliente</CardTitle>
             {!cliente.usuario_id && (
               <Boton size="sm" onClick={abrirModalAsignarUsuario} className="w-full sm:w-auto">
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -384,28 +394,77 @@ export default function ClienteDetallePage(props: PageProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-6">
+            {/* Información básica */}
             <div>
-              <p className="text-sm text-gray-500 mb-1">Correo de Contacto</p>
-              <p className="text-gray-900 font-medium">{cliente.correo_contacto}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Teléfono</p>
-              <p className="text-gray-900 font-medium">{cliente.telefono_contacto || 'No registrado'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Estado de Usuario</p>
-              {cliente.usuario_id ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="success">Usuario Activo</Badge>
-                  <span className="text-xs text-gray-500">Puede iniciar sesión</span>
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Datos Generales</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Tipo de Persona</p>
+                  {cliente.tipo_persona ? (
+                    <Badge variant={cliente.tipo_persona === 'juridica' ? 'info' : 'neutral'}>
+                      {cliente.tipo_persona === 'juridica' ? 'Persona Jurídica' : 'Persona Física'}
+                    </Badge>
+                  ) : (
+                    <p className="text-gray-400 text-sm">No especificado</p>
+                  )}
                 </div>
-              ) : (
-                <div className="flex flex-col gap-1">
-                  <Badge variant="neutral">Sin Usuario</Badge>
-                  <span className="text-xs text-gray-500">No puede iniciar sesión</span>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">CUIT/CUIL</p>
+                  <p className="text-gray-900 font-medium">{cliente.cuit_cuil || 'No registrado'}</p>
                 </div>
-              )}
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Estado de Usuario</p>
+                  {cliente.usuario_id ? (
+                    <div className="flex items-center gap-2">
+                      <Badge variant="success">Usuario Activo</Badge>
+                      <span className="text-xs text-gray-500">Puede iniciar sesión</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <Badge variant="neutral">Sin Usuario</Badge>
+                      <span className="text-xs text-gray-500">No puede iniciar sesión</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Domicilio */}
+            {cliente.domicilio && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Domicilio</h3>
+                <p className="text-gray-700">{cliente.domicilio}</p>
+              </div>
+            )}
+
+            {/* Representante */}
+            {cliente.nombre_representante && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">
+                  {cliente.tipo_persona === 'fisica' ? 'Persona de Contacto' : 'Representante Legal / Contacto'}
+                </h3>
+                <p className="text-gray-700">{cliente.nombre_representante}</p>
+              </div>
+            )}
+
+            {/* Información de contacto */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Datos de Contacto</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Correo Electrónico</p>
+                  <p className="text-gray-900 font-medium break-all">{cliente.correo_contacto}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Teléfono Fijo</p>
+                  <p className="text-gray-900 font-medium">{cliente.telefono_contacto || 'No registrado'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Celular / WhatsApp</p>
+                  <p className="text-gray-900 font-medium">{cliente.celular_contacto || 'No registrado'}</p>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -668,29 +727,105 @@ export default function ClienteDetallePage(props: PageProps) {
         isOpen={isModalEditar}
         onClose={cerrarModalEditar}
         title="Editar Cliente"
+        size="lg"
       >
         <form onSubmit={handleEditarSubmit} className="space-y-4">
+          {/* Tipo de Persona */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de Persona <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="tipo_persona_edit"
+                  value="juridica"
+                  checked={formEditar.tipo_persona === 'juridica'}
+                  onChange={(e) => setFormEditar({ ...formEditar, tipo_persona: 'juridica' })}
+                  className="border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-gray-700">Persona Jurídica</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="tipo_persona_edit"
+                  value="fisica"
+                  checked={formEditar.tipo_persona === 'fisica'}
+                  onChange={(e) => setFormEditar({ ...formEditar, tipo_persona: 'fisica' })}
+                  className="border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-gray-700">Persona Física</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Nombre de Empresa */}
           <Input
-            label="Nombre de la Empresa"
+            label={formEditar.tipo_persona === 'fisica' ? 'Nombre Completo' : 'Nombre de la Empresa / Razón Social'}
             value={formEditar.nombre_empresa}
             onChange={(e) => setFormEditar({ ...formEditar, nombre_empresa: e.target.value })}
             required
           />
 
+          {/* CUIT/CUIL */}
           <Input
-            label="Correo de Contacto"
-            type="email"
-            value={formEditar.correo_contacto}
-            onChange={(e) => setFormEditar({ ...formEditar, correo_contacto: e.target.value })}
-            required
+            label="CUIT/CUIL"
+            value={formEditar.cuit_cuil}
+            onChange={(e) => setFormEditar({ ...formEditar, cuit_cuil: e.target.value })}
+            placeholder="XX-XXXXXXXX-X"
           />
 
+          {/* Domicilio */}
           <Input
-            label="Teléfono de Contacto"
-            type="tel"
-            value={formEditar.telefono_contacto}
-            onChange={(e) => setFormEditar({ ...formEditar, telefono_contacto: e.target.value })}
+            label="Domicilio"
+            value={formEditar.domicilio}
+            onChange={(e) => setFormEditar({ ...formEditar, domicilio: e.target.value })}
+            placeholder="Calle, número, ciudad, provincia"
           />
+
+          {/* Nombre del Representante */}
+          <Input
+            label={formEditar.tipo_persona === 'fisica' ? 'Persona de Contacto (opcional)' : 'Nombre del Representante / Contacto'}
+            value={formEditar.nombre_representante}
+            onChange={(e) => setFormEditar({ ...formEditar, nombre_representante: e.target.value })}
+            placeholder="Nombre y apellido"
+          />
+
+          <div className="border-t pt-4">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Datos de Contacto</h3>
+
+            {/* Correo */}
+            <Input
+              label="Correo Electrónico"
+              type="email"
+              value={formEditar.correo_contacto}
+              onChange={(e) => setFormEditar({ ...formEditar, correo_contacto: e.target.value })}
+              required
+              className="mb-3"
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Teléfono */}
+              <Input
+                label="Teléfono Fijo"
+                type="tel"
+                value={formEditar.telefono_contacto}
+                onChange={(e) => setFormEditar({ ...formEditar, telefono_contacto: e.target.value })}
+                placeholder="011 4444-5555"
+              />
+
+              {/* Celular */}
+              <Input
+                label="Celular / WhatsApp"
+                type="tel"
+                value={formEditar.celular_contacto}
+                onChange={(e) => setFormEditar({ ...formEditar, celular_contacto: e.target.value })}
+                placeholder="11 5555-6666"
+              />
+            </div>
+          </div>
 
           <div className="flex justify-end gap-2 mt-6">
             <Boton type="button" variant="outline" onClick={cerrarModalEditar}>

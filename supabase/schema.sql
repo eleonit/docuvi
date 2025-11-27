@@ -26,13 +26,23 @@ CREATE TABLE IF NOT EXISTS public.usuarios (
 CREATE TABLE IF NOT EXISTS public.clientes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre_empresa TEXT NOT NULL,
+  cuit_cuil TEXT,
+  domicilio TEXT,
+  nombre_representante TEXT,
   correo_contacto TEXT NOT NULL,
   telefono_contacto TEXT,
+  celular_contacto TEXT,
+  tipo_persona TEXT CHECK (tipo_persona IN ('fisica', 'juridica')),
+  activo BOOLEAN NOT NULL DEFAULT true,
   usuario_id UUID REFERENCES public.usuarios(id) ON DELETE SET NULL,
   creado_por UUID NOT NULL REFERENCES public.usuarios(id),
   creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Índices para clientes
+CREATE INDEX IF NOT EXISTS idx_clientes_cuit_cuil ON public.clientes(cuit_cuil);
+CREATE INDEX IF NOT EXISTS idx_clientes_tipo_persona ON public.clientes(tipo_persona);
 
 -- =====================================================
 -- TABLA: tipos_documento
