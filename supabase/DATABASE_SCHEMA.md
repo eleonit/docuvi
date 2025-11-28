@@ -33,10 +33,11 @@
 │ nombre_empresa   │   │ actor_id (FK)    │
 │ correo_contacto  │   │ accion           │
 │ telefono_contacto│   │ entidad          │
-│ usuario_id (FK)  │   │ entidad_id       │
-│ creado_por (FK)  │   │ datos (JSONB)    │
-│ creado_en        │   │ creado_en        │
-│ actualizado_en   │   └──────────────────┘
+│ activo           │   │ entidad_id       │
+│ usuario_id (FK)  │   │ datos (JSONB)    │
+│ creado_por (FK)  │   │ creado_en        │
+│ creado_en        │   └──────────────────┘
+│ actualizado_en   │
 └────────┬─────────┘
          │
          │      ┌────────────────────────┐
@@ -159,6 +160,7 @@ Empresas o contratistas que deben cumplir con requisitos documentales.
 | nombre_empresa | TEXT | Razón social |
 | correo_contacto | TEXT | Email de contacto |
 | telefono_contacto | TEXT | Teléfono (opcional) |
+| activo | BOOLEAN | Estado activo/inactivo (default: true) |
 | usuario_id | UUID (FK) | Usuario asociado (opcional) |
 | creado_por | UUID (FK) | Revisor que lo creó |
 | creado_en | TIMESTAMPTZ | Fecha de creación |

@@ -34,10 +34,20 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Refrescar sesión si existe
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Refrescar sesión si existe con timeout para evitar bloqueos
+  let user = null
+  try {
+    const result = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Auth timeout')), 3000)
+      ),
+    ]) as any
+    user = result?.data?.user
+  } catch (error) {
+    console.error('Middleware auth timeout o error:', error)
+    // Continuar sin usuario en caso de error
+  }
 
   // Proteger rutas de autenticación si el usuario ya está logueado
   if (

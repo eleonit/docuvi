@@ -6,6 +6,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { clearLocalSession } from '@/lib/supabase/session-manager'
 import type { Usuario } from '@/types'
 import type { User } from '@supabase/supabase-js'
 
@@ -29,7 +30,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUser = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      // Timeout para prevenir bloqueos en la carga inicial
+      const getUserPromise = supabase.auth.getUser()
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout al cargar usuario')), 5000)
+      )
+
+      const result = await Promise.race([getUserPromise, timeoutPromise]) as any
+      const user = result?.data?.user
+
       setUser(user)
 
       if (user) {
@@ -65,6 +74,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return
         }
 
+        // Si el token expiró, limpiar sesión localmente
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refrescado automáticamente')
+        }
+
         // Actualizar el usuario
         setUser(session?.user ?? null)
 
@@ -84,8 +98,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     )
 
+    // Refresh automático de sesión cada 5 minutos para mantenerla activa
+    const refreshInterval = setInterval(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          // Intentar refrescar la sesión
+          const { error } = await supabase.auth.refreshSession()
+          if (error) {
+            console.warn('No se pudo refrescar la sesión, puede estar expirada')
+          }
+        }
+      } catch (error) {
+        console.error('Error al refrescar sesión automáticamente:', error)
+      }
+    }, 5 * 60 * 1000) // 5 minutos
+
+    // Detectar cuando el usuario vuelve a la pestaña después de inactividad
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session) {
+            // Intentar refrescar cuando el usuario regresa
+            await supabase.auth.refreshSession()
+          }
+        } catch (error) {
+          console.warn('Error al refrescar sesión al regresar:', error)
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
       subscription.unsubscribe()
+      clearInterval(refreshInterval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [loadUser, supabase])
 
@@ -113,20 +162,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      // Cerrar sesión en Supabase primero
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      setIsLoading(true)
 
-      // El evento SIGNED_OUT del listener limpiará el estado automáticamente
-      // Pero limpiamos también aquí por si acaso
+      // Limpiar estado inmediatamente para una UX más rápida
       setUser(null)
       setUsuario(null)
+
+      // Cerrar sesión en Supabase con timeout para evitar bloqueos
+      const signOutPromise = supabase.auth.signOut()
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout al cerrar sesión')), 5000)
+      )
+
+      try {
+        await Promise.race([signOutPromise, timeoutPromise])
+      } catch (supabaseError) {
+        console.warn('Supabase signOut falló (token expirado o timeout), limpiando localmente:', supabaseError)
+      }
+
+      // Limpieza forzada de toda la sesión local (localStorage, sessionStorage, cookies)
+      // Esto es crítico cuando el token está expirado y Supabase no puede cerrar sesión
+      clearLocalSession()
+
     } catch (error) {
-      console.error('Error al cerrar sesión:', error)
-      // En caso de error, limpiar el estado de todas formas
+      console.error('Error crítico al cerrar sesión:', error)
+      // En caso de error, aún así limpiar el estado y la sesión local
       setUser(null)
       setUsuario(null)
-      throw error
+      clearLocalSession()
+    } finally {
+      setIsLoading(false)
     }
   }
 
