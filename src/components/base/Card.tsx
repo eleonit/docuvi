@@ -21,7 +21,7 @@ export function Card({ children, hoverable = false, padding = 'md', className, .
   return (
     <div
       className={cn(
-        'bg-white rounded-lg border border-gray-200 shadow-sm',
+        'bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm',
         hoverable && 'hover:shadow-md transition-shadow cursor-pointer',
         paddings[padding],
         className
@@ -35,7 +35,7 @@ export function Card({ children, hoverable = false, padding = 'md', className, .
 
 export function CardHeader({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('border-b border-gray-200 pb-3 mb-4', className)} {...props}>
+    <div className={cn('border-b border-gray-200 dark:border-gray-700 pb-3 mb-4', className)} {...props}>
       {children}
     </div>
   )
@@ -43,7 +43,7 @@ export function CardHeader({ children, className, ...props }: HTMLAttributes<HTM
 
 export function CardTitle({ children, className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn('text-lg font-semibold text-gray-900', className)} {...props}>
+    <h3 className={cn('text-lg font-semibold text-gray-900 dark:text-white', className)} {...props}>
       {children}
     </h3>
   )
@@ -51,7 +51,7 @@ export function CardTitle({ children, className, ...props }: HTMLAttributes<HTML
 
 export function CardContent({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('text-gray-700', className)} {...props}>
+    <div className={cn('text-gray-700 dark:text-gray-300', className)} {...props}>
       {children}
     </div>
   )
@@ -59,7 +59,7 @@ export function CardContent({ children, className, ...props }: HTMLAttributes<HT
 
 export function CardFooter({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('border-t border-gray-200 pt-3 mt-4', className)} {...props}>
+    <div className={cn('border-t border-gray-200 dark:border-gray-700 pt-3 mt-4', className)} {...props}>
       {children}
     </div>
   )

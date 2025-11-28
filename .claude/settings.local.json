@@ -11,7 +11,13 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Sistema Docuvi completo\n\n- Sistema de gestión documental completo\n- Autenticación con Supabase (roles: revisor, cliente)\n- Gestión de clientes con asignación de usuarios\n- Tipos de documentos configurables\n- Sistema de requerimientos por cliente\n- Aprobación/rechazo de documentos\n- Generación de certificados con PDF\n- Notificaciones automáticas\n- Interfaz responsive (móvil, tablet, desktop)\n- Modales para todas las operaciones CRUD\n\nTecnologías:\n- Next.js 15.5.6 (App Router)\n- TypeScript\n- Tailwind CSS\n- Supabase (Auth + PostgreSQL + Storage)\n- TanStack Query\n- jsPDF para generación de certificados\n- QRCode para verificación de certificados\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git branch:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(taskkill:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,6 +6,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './AuthContext'
+import { ThemeProvider } from './ThemeContext'
 import { ToastContainer } from '@/components/base/Toast'
 import { useToastStore } from '@/store/toastStore'
 import { useState } from 'react'
@@ -28,10 +29,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {children}
-        <ToastContainer toasts={toasts} onClose={removeToast} />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          {children}
+          <ToastContainer toasts={toasts} onClose={removeToast} />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
