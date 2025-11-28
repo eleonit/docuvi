@@ -15,15 +15,44 @@ interface WhatsAppMessage {
 }
 
 /**
+ * Validar formato de número de WhatsApp
+ */
+function validarNumeroWhatsApp(numero: string): boolean {
+  // Formato internacional: +[código país][número]
+  // Ejemplos: +5215512345678, +14155238886
+  const regex = /^\+[1-9]\d{1,14}$/
+  return regex.test(numero)
+}
+
+/**
  * Enviar mensaje de WhatsApp usando Twilio
+ * Soporta tanto Auth Token como API Keys (más seguro para producción)
  */
 async function enviarWhatsAppTwilio(to: string, message: string) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
-  const authToken = process.env.TWILIO_AUTH_TOKEN
   const whatsappFrom = process.env.TWILIO_WHATSAPP_FROM // ej: whatsapp:+14155238886
 
-  if (!accountSid || !authToken || !whatsappFrom) {
-    throw new Error('Credenciales de Twilio no configuradas')
+  // Soportar API Keys (recomendado) o Auth Token (legacy)
+  const apiKeySid = process.env.TWILIO_API_KEY_SID
+  const apiKeySecret = process.env.TWILIO_API_KEY_SECRET
+  const authToken = process.env.TWILIO_AUTH_TOKEN
+
+  // Validar que tengamos las credenciales necesarias
+  if (!accountSid || !whatsappFrom) {
+    throw new Error('TWILIO_ACCOUNT_SID y TWILIO_WHATSAPP_FROM son requeridos')
+  }
+
+  // Preferir API Keys sobre Auth Token
+  const username = apiKeySid || accountSid
+  const password = apiKeySecret || authToken
+
+  if (!password) {
+    throw new Error('Se requiere TWILIO_API_KEY_SECRET o TWILIO_AUTH_TOKEN')
+  }
+
+  // Validar formato del número de destino
+  if (!validarNumeroWhatsApp(to)) {
+    throw new Error(`Número de WhatsApp inválido: ${to}. Debe estar en formato internacional (ej: +5215512345678)`)
   }
 
   // Asegurar formato correcto (agregar whatsapp: prefix)
@@ -41,14 +70,23 @@ async function enviarWhatsAppTwilio(to: string, message: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+      Authorization: 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64'),
     },
     body: params.toString(),
   })
 
   if (!response.ok) {
     const errorData = await response.json()
-    throw new Error(`Error de Twilio: ${errorData.message || response.statusText}`)
+
+    // Logging mejorado de errores
+    console.error('Error de Twilio:', {
+      status: response.status,
+      code: errorData.code,
+      message: errorData.message,
+      moreInfo: errorData.more_info,
+    })
+
+    throw new Error(`Error de Twilio [${errorData.code}]: ${errorData.message || response.statusText}`)
   }
 
   return await response.json()
@@ -158,14 +196,25 @@ export async function POST(request: NextRequest) {
  * GET - Verificar configuración de WhatsApp
  */
 export async function GET() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const whatsappFrom = process.env.TWILIO_WHATSAPP_FROM
+  const apiKeySid = process.env.TWILIO_API_KEY_SID
+  const apiKeySecret = process.env.TWILIO_API_KEY_SECRET
+  const authToken = process.env.TWILIO_AUTH_TOKEN
+
+  const usingApiKeys = !!(apiKeySid && apiKeySecret)
+  const usingAuthToken = !!authToken
+
   const configured = !!(
-    process.env.TWILIO_ACCOUNT_SID &&
-    process.env.TWILIO_AUTH_TOKEN &&
-    process.env.TWILIO_WHATSAPP_FROM
+    accountSid &&
+    whatsappFrom &&
+    (usingApiKeys || usingAuthToken)
   )
 
   return NextResponse.json({
     configured,
     provider: 'Twilio',
+    authMethod: usingApiKeys ? 'API Keys (Recommended)' : usingAuthToken ? 'Auth Token (Legacy)' : 'Not configured',
+    secure: usingApiKeys,
   })
 }

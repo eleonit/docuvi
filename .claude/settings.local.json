@@ -17,7 +17,13 @@
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
       "Bash(taskkill:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(rm:*)",
+      "WebFetch(domain:www.twilio.com)",
+      "Bash(del:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []

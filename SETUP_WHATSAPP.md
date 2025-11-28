@@ -9,11 +9,22 @@ Esta guía te ayudará a configurar las notificaciones por WhatsApp en Docuvi en
 3. Verifica tu número de teléfono
 4. Obtienes **$15.50 USD gratis** para pruebas
 
-## Paso 2: Obtener Credenciales (1 minuto)
+## Paso 2: Obtener Credenciales (2 minutos)
 
+### Para Desarrollo (Más rápido)
 1. Ve a [console.twilio.com](https://console.twilio.com/)
 2. Copia tu **Account SID** (empieza con `AC...`)
 3. Copia tu **Auth Token** (haz clic en "Show" para verlo)
+
+### Para Producción (Más seguro - RECOMENDADO)
+1. Ve a [console.twilio.com](https://console.twilio.com/)
+2. Copia tu **Account SID** (empieza con `AC...`)
+3. Ve a **Account** > **API Keys & Tokens**
+4. Click en **Create API Key**
+5. Nombre: `Docuvi Production`
+6. Tipo: **Standard**
+7. Click en **Create API Key**
+8. ⚠️ **IMPORTANTE:** Copia el **API Key SID** (empieza con `SK...`) y el **Secret** (solo se muestra una vez)
 
 ## Paso 3: Configurar WhatsApp Sandbox (2 minutos)
 
@@ -29,14 +40,26 @@ Esta guía te ayudará a configurar las notificaciones por WhatsApp en Docuvi en
 1. Abre tu archivo `.env.local`
 2. Agrega estas líneas:
 
+### Opción A: Para Producción (API Keys - RECOMENDADO)
+```bash
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxx           # Pegado del Paso 2
+TWILIO_API_KEY_SID=SKxxxxxxxxxxxxx           # Pegado del Paso 2 (Producción)
+TWILIO_API_KEY_SECRET=tu_api_key_secret      # Pegado del Paso 2 (Producción)
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886   # Pegado del Paso 3
+CRON_SECRET=mi_secreto_aleatorio_123         # Inventa uno aleatorio
+```
+
+### Opción B: Para Desarrollo (Auth Token)
 ```bash
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxx        # Pegado del Paso 2
-TWILIO_AUTH_TOKEN=tu_auth_token           # Pegado del Paso 2
+TWILIO_AUTH_TOKEN=tu_auth_token           # Pegado del Paso 2 (Desarrollo)
 TWILIO_WHATSAPP_FROM=whatsapp:+14155238886  # Pegado del Paso 3
 CRON_SECRET=mi_secreto_aleatorio_123      # Inventa uno aleatorio
 ```
 
 3. Guarda el archivo
+
+**💡 Tip:** Usa API Keys en producción para mayor seguridad. Auth Token es suficiente para desarrollo/testing.
 
 ## Paso 5: Ejecutar Migration de Base de Datos (1 minuto)
 

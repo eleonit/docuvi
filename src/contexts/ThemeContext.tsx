@@ -22,12 +22,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Cargar tema desde localStorage al montar
   useEffect(() => {
+    setMounted(true)
+
     const savedTheme = localStorage.getItem('theme') as Theme | null
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
     const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light')
+
     setThemeState(initialTheme)
-    setMounted(true)
+
+    // Aplicar inmediatamente al montar
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(initialTheme)
   }, [])
 
   // Aplicar clase al HTML cuando cambia el tema
@@ -46,11 +52,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const toggleTheme = () => {
     setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'))
-  }
-
-  // Evitar flash de contenido no estilizado
-  if (!mounted) {
-    return <>{children}</>
   }
 
   return (
