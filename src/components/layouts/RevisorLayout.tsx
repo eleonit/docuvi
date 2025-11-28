@@ -162,20 +162,27 @@ export default function RevisorLayout({ children }: { children: React.ReactNode 
       } lg:translate-x-0`}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-primary-600 dark:text-primary-400">Docuvi</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Panel de Revisión</p>
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h1 className="text-2xl font-bold text-primary-600 dark:text-primary-400">Docuvi</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Panel de Revisión</p>
+              </div>
+              {/* Notificaciones y close button */}
+              <div className="flex items-center gap-2">
+                <div className="hidden lg:block">
+                  <NotificationBell />
+                </div>
+                <button
+                  onClick={closeSidebar}
+                  className="lg:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            {/* Close button for mobile */}
-            <button
-              onClick={closeSidebar}
-              className="lg:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
 
           {/* Navigation */}
